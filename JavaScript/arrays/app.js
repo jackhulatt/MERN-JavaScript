@@ -44,6 +44,8 @@ for (let name of names) {
      the new todo to the todo items list and updates
      the list displayed on the browser.
 */
+const root = document.querySelector("#root");
+
 function Todo(name, priority) {
     this.name = name;
     this.priority = priority;
@@ -79,20 +81,36 @@ function todoToListItem(todo) {
     return container;
 }
 
-const root = document.querySelector("#root");
+function renderTodoList() {
+    const existing = root.querySelector("#todoList");
+    if (existing) root.removeChild(existing);
 
-const ul = document.createElement("ul");
-// const mappedTodos = todos.map(todo => todoToListItem(todo));
-// for (let todo of mappedTodos) ul.appendChild(todo);
-// or
-for (let todo of todos) {
-    ul.appendChild(todoToListItem(todo));
+    const ul = document.createElement("ul");
+    ul.id = "todoList";
+    for (let todo of todos) {
+        ul.appendChild(todoToListItem(todo));
+    }
+    root.appendChild(ul);
 }
-
-root.appendChild(ul);
 
 // If you want to add a new class, remove a class or toggle 
 // a class, use the classList property on each node
 root.classList.add("jpoiajfi");
 root.classList.remove("jpoiajfi");
 root.classList.toggle("jpoiajfi");
+
+// form
+const todoForm = document.querySelector("#todoForm");
+todoForm.addEventListener("submit", (event) => {
+    event.preventDefault(); // preventing page refresh
+    // built-in FormData API makes working with forms much easier
+    // - we can access values of form fields as if they where key:value pairs
+    const data = new FormData(todoForm); 
+    const todo = new Todo(data.get("name"), data.get("priority") || "LOW");
+    todos.push(todo); // add new todo to in memory list
+    todoForm.reset(); // reset form input fields
+    renderTodoList(); // refresh rendered todo list
+});
+
+// initial render
+renderTodoList();
