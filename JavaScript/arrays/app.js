@@ -51,7 +51,8 @@ function Todo(name, priority) {
 
 const todos = [
     new Todo("Walk the dog", "HIGH"),
-    new Todo("Wash the car", "LOW")
+    new Todo("Wash the car", "LOW"),
+    new Todo("Iron the Shirts", "MEDIUM")
 ];
 
 function todoToListItem(todo) {
