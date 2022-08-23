@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS</title>
+</head>
+<body>
+    <form>
+        <label for="forename">Forename:</label>
+        <input type="text" name="forename" id="forename">
+
+        <button type="submit">Submit</button>
+        <!-- label#idNameHere -->
+        <!-- <label for="" id="idNameHere"></label> -->
+        
+        <!-- label.classNameHere -->
+        <!-- <label for="" class="classNameHere"></label> -->
+
+        <!-- ul>li*5.list-item -->
+        <!-- <ul>
+            <li class="list-item"></li>
+            <li class="list-item"></li>
+            <li class="list-item"></li>
+            <li class="list-item"></li>
+            <li class="list-item"></li>
+        </ul> -->
+    </form>
+    <div id="container"></div>
+    <script>
+        'use strict';
+        const form = document.querySelector("form");
+        const container = document.querySelector("#container");
+        
+        // <img src onerror="alert('hi')">
+        form.addEventListener("submit", (event) => {
+            event.preventDefault(); // preventing page refresh
+            // built-in FormData API makes working with forms much easier
+            // - we can access values of form fields as if they where key:value pairs
+            const data = new FormData(form);
+            const forename = data.get("forename");
+            foreName = sanitise(forename);
+            // console.log(forename)
+            const p = document.createElement("p");
+            // p.appendChild(document.createTextNode(forename));
+            p.innerHTML = forename;
+            container.appendChild(p);
+        });
+
+        function sanitise(unsanitised) {
+            return unsanitised.replaceAll("<", "&lt;")
+                              .replaceAll(">", "&gt;");
+        }
+    </script>
+</body>
+</html>
