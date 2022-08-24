@@ -33,6 +33,7 @@ function table(request, response) {
     response.write(`<body><h1>${table} times tables</h1><ul>`);
     
     for (let i = 1; i <= range; i++) {
+      console.log(table * i);
       response.write(`<li>${table} * ${i} = ${table * i}</li>`);
     }
 
