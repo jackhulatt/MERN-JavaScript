@@ -42,6 +42,16 @@ app.post("/user", (request, response) => {
             .json(user);
 });
 
+// update
+app.put("/user/:id", (request, response) => {
+    // implement me
+});
+
+// delete
+app.delete("/user/:id", (request, response) => {
+    // implement me
+});
+
 // error handlers are middleware, they are at the end of the middleware
 // chain in Express
 // - they always have an extra first parameter, the error
