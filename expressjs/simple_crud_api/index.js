@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 let idCounter = 1;
-const usersDatabase = [];
+const usersDatabase = [new User(idCounter++, "Bob123", "password", "bob@mail.com")];
 
 // setup middleware for parsing JSON and formdata
 app.use(express.json());
@@ -21,7 +21,7 @@ app.get("/user", (request, response) => response.json(usersDatabase));
 // in the path, a colon followed by a name consisting of letters, numbers and 
 // underscores will be treated as a path variable
 app.get("/user/:id", (request, response, next) => {
-    const user = usersDatabase.find(u => u.id == request.params.id);
+    const user = usersDatabase.find(u => u.id === parseInt(request.params.id));
 
     if (user) {
         response.status(200).json(user);
@@ -39,17 +39,40 @@ app.post("/user", (request, response) => {
     const user = new User(idCounter++, data.username, data.password, data.email);
     usersDatabase.push(user);
     response.status(201)
-            .json(user);
+            .setHeader("Content-Location", `/user/${user.id}`)
+            .json(user); // auto sets the Content-Type header to 'application/json; charset=utf-8'
 });
 
 // update
 app.put("/user/:id", (request, response) => {
     // implement me
+    const id = parseInt(request.params.id);
+    const data = request.body;
+    const userIndex = usersDatabase.findIndex(u => u.id === id);
+
+    if (userIndex === -1) return next(new UserNotFoundError(id));
+    const priorState = usersDatabase[userIndex];
+    usersDatabase[userIndex] = new User(id, data.username || priorState.username, 
+                                        data.password || priorState.password, 
+                                        data.email || priorState.email);
+    // const user = new User(id, data.username || priorState.username, 
+    //                       data.password || priorState.password, 
+    //                       data.email || priorState.email);
+    // usersDatabase.splice(userIndex, 1, user);
+    response.status(200)
+            .json(usersDatabase[userIndex]);
 });
 
 // delete
-app.delete("/user/:id", (request, response) => {
-    // implement me
+app.delete("/user/:id", (request, response, next) => {
+    const id = parseInt(request.params.id);
+    const userIndex = usersDatabase.findIndex(user => user.id === id);
+
+    if (userIndex === -1) return next(new UserNotFoundError(id));
+
+    usersDatabase.splice(userIndex, 1);
+
+    response.sendStatus(200);
 });
 
 // error handlers are middleware, they are at the end of the middleware
