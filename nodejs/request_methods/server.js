@@ -6,15 +6,40 @@ const HOST = "localhost"; // 127.0.0.1 is also valid (local loopback address), i
 const PORT = 3000;
 
 function requestHandler(request, response) {
-  const url = URL.parse(request.url, true);
+  switch (request.method) {
+    case "GET":
+      getHandler(request, response);
+      break;
+    case "POST":
+      postHandler(request, response);
+      break;
+    default:
+      notSupported(request, response);
+      break;
+  }
+}
 
-  console.log(url.pathname);
+async function postHandler(request, response) {
+  const url = URL.parse(request.url);
+
+  switch (url.pathname) {
+    case "/":
+      const body = await getBody(request);
+      response.setHeader("Content-type", "application/json");
+      response.end(JSON.stringify(body));
+      break;
+    default:
+      notFound(request, response);
+      break;
+  }
+}
+
+// handles GET request method
+function getHandler(request, response) {
+  const url = URL.parse(request.url);
   switch (url.pathname) {
     case "/":
       serve(request, response, "index.html");
-      break;
-    case "/body":
-      body(request, response);
       break;
     default:
       // check for static file
@@ -29,30 +54,25 @@ function requestHandler(request, response) {
   }
 }
 
-function body(request, response) {
-  let data = '';
+function notSupported(request, response) {
+  response.statusCode = 405;
+  response.setHeader('Content-type', 'text/html');
+  response.write("<html>");
+  response.write("<head><title>405</title></head>");
+  response.write(`<body><h1>405 - ${request.method} request method not supported</h1></body>`);
+  response.write("</html>");
+  response.end();
+}
 
-  // request.on() listens for an emitted event
-  // - an IncomingMessage object, just like a Server object, can emit events
-  request.on('data', chunk => {
-    data += chunk;
-  });
+async function getBody(request) {
+  const buffers = [];
 
-  /*
-    Modify the response so that if the body data contains a property `name`, and the value is not null or an 
-    empty string, it returns a secret greeting otherwise it should return the response it normally returns.
-  */
-  request.on('end', () => {
-    data = JSON.parse(data);
-    
-    if (data.name) {
-      response.setHeader('Content-type', 'text/plain');
-      response.end(`Hello there ${data.name}`);
-    } else {
-      response.setHeader('Content-type', 'application/json');
-      response.end(JSON.stringify(data));
-    }
-  });
+  // iterate over the request, awaiting each chunk of data
+  for await (const chunk of request) {
+    buffers.push(chunk);
+  }
+  const data = Buffer.concat(buffers).toString();
+  return JSON.parse(data);
 }
 
 function serve(request, response, file) {
