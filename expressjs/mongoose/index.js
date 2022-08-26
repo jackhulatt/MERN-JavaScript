@@ -1,5 +1,6 @@
 const express = require('express'); 
 const morgan = require('morgan');
+const mongoose = require('mongoose'); // mongoose can be used for connecting to MongoDB instances
 const UserNotFoundError = require('./error/UserNotFoundError');
 const userRouter = require('./router/UserRouter');
 
@@ -9,6 +10,7 @@ const userRouter = require('./router/UserRouter');
 const { simpleLogger, logHitSpecialEndpoint } = require('./loggers/generic');
 
 const PORT = process.env.PORT || 3000;
+const DB_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/mongooseExample"
 const app = express();
 
 // middleware is just a function that accepts, potentially, two, three or four parameters:
@@ -55,4 +57,15 @@ app.use((error, request, response, next) => {
         message: error.message
     });
 });
-const server = app.listen(PORT, () => console.log(`Server up on port ${PORT}`));
+
+let server;
+// connect() is used to connect to a mongodb server
+mongoose.connect(DB_URL, { useNewUrlParser: true })
+        .then(() => {
+            console.log(`Database connected`);
+            server = app.listen(PORT, () => console.log(`Server up on port ${PORT}`));
+        }).catch(error => {
+            console.log(`Unable to connect to database.`)
+        });
+let databaseConnection = mongoose.connection;
+ 
