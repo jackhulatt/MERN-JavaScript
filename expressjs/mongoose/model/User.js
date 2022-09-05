@@ -17,11 +17,11 @@ const userSchema = new Schema({
     password: String,
     email: {
         type: String,
-        minLength: 8,
+        minLength: [8, 'Email must be specified and must be between 8 and 128 characters long.'],
         maxLength: 128,
         unique: true, // must be a unique email
         trim: true, // trim whitespace
-        required: [true, 'Email must be specified and must be between 8 and 128 characters long.'],
+        required: [true, 'Email is required.'],
         match: /^[a-z]+@[a-z]+[.][a-z]+/ // match accepts a regular expression (regex)
     },
     createdAt: {
@@ -30,7 +30,7 @@ const userSchema = new Schema({
     }
 }, {
     // schema options
-    strict: false // allows insertion of new properties on the fly
+    strict: true // allows insertion of new properties on the fly if set to false
 });
 
 // create a model from the schema

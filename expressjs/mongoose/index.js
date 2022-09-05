@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 // setup serving static files
 app.use(express.static("public"));
 
-app.use("/", userRouter);
+app.use("/user", userRouter);
 
 // we can apply middleware that is only used on certain routes
 app.get("/special", logHitSpecialEndpoint, (request, response, next) => {
@@ -59,13 +59,16 @@ app.use((error, request, response, next) => {
 });
 
 let server;
+let databaseConnection;
+
 // connect() is used to connect to a mongodb server
 mongoose.connect(DB_URL, { useNewUrlParser: true })
         .then(() => {
             console.log(`Database connected`);
+            databaseConnection = mongoose.connection;
             server = app.listen(PORT, () => console.log(`Server up on port ${PORT}`));
         }).catch(error => {
             console.log(`Unable to connect to database.`)
         });
-let databaseConnection = mongoose.connection;
+
  

@@ -13,16 +13,25 @@ function isJsonData(request, response, next) {
 
 // Once we have an instance of router, it works very similar to how we add
 // routes and middleware to the app itself, i.e., from const app = express()
-router.get("/user", async (request, response) => {
+router.get("/", async (request, response) => {
     // User.find() will pull all users back from the database
     // - User.find() returns a promise, we need to await the result
-    response.json(await User.find()); 
+    response.json(await User.find());
+
+    // Finding with filters
+    // SELECT * FROM user WHERE createdAt = "2022-08-01" AND age < 65;
+    // User.find({
+    //     createdAt: "2022-08-01",
+    //     age: {
+    //         "lt": 65
+    //     }
+    // })
 });
 
 // read by id
 // in the path, a colon followed by a name consisting of letters, numbers and 
 // underscores will be treated as a path variable
-router.get("/user/:id", async (request, response, next) => {
+router.get("/:id", async (request, response, next) => {
     const user = await User.findById(request.params.id);
 
     if (user) {
@@ -36,7 +45,7 @@ router.get("/user/:id", async (request, response, next) => {
     }
 });
 
-router.post("/user", isJsonData, async (request, response, next) => {
+router.post("/", isJsonData, async (request, response, next) => {
     try {
         const user = new User(request.body);
         await user.save();
@@ -50,7 +59,7 @@ router.post("/user", isJsonData, async (request, response, next) => {
 });
 
 // update
-router.put("/user/:id", isJsonData, async (request, response, next) => {
+router.put("/:id", isJsonData, async (request, response, next) => {
     const user = await User.updateOne({ _id: request.params.id }, request.body);
 
     if (user) {
@@ -62,7 +71,7 @@ router.put("/user/:id", isJsonData, async (request, response, next) => {
 });
 
 // delete
-router.delete("/user/:id", async (request, response, next) => {
+router.delete("/:id", async (request, response, next) => {
     const user = await User.findOneAndDelete({ _id: request.params.id });
 
     if (user) {

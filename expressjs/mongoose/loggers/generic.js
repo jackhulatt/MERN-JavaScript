@@ -13,6 +13,6 @@ module.exports.simpleLogger = simpleLogger;
 
 // Export all at once on same object
 // module.exports = {
-//     simpleLogger,
-//     logHitSpecialEndpoint
+//     simpleLogger: function(request, response, next) => {},
+//     logHitSpecialEndpoint: function(request, response, next) => {}
 // }
