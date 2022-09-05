@@ -17,6 +17,10 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User', // is the name of the collection which the id references
         required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 });
 

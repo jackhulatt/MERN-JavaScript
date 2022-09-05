@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema({
         trim: true,
         required: true
     },
+    // passport-local-mongoose ensures password isn't saved directly
+    // - it is instead saved as salt and hash fields
+    // - this means making password a required field would be an error
     password: {
         type: String,
         minLength: 4,
@@ -32,7 +35,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    contactDetails: [contactSchema]
+    contactDetails: [contactSchema] // an array of contact documents
 });
 
 // Adds a hash and salt field, and uses these to encrypt the password

@@ -6,6 +6,7 @@ const { default: mongoose } = require('mongoose');
 const User = require('./model/User');
 const authenticationRouter = require('./route/AuthenticationRouter');
 const postRouter = require('./route/PostRouter');
+const PostNotFoundError = require('./error/PostNotFoundError');
 
 const app = express();
 global.__basedir = __dirname;
@@ -53,6 +54,31 @@ app.use(authenticationRouter);
 app.use('/post', postRouter);
 
 app.use(express.static("public"));
+
+app.use((error, request, response, next) => {
+    console.error(error);
+    let data = {
+        status: 500
+    };
+
+    if (error.name === "PostNotFoundError") {
+        data = {
+            type: error.name,
+            status: 404
+        }
+    } else if (error.name === "ValidationError"
+               || error.name === "UserExistsError") {
+        data = {
+            type: error.name,
+            status: 400
+        }
+    }
+
+    return response.status(data.status).json({
+        message: error.message,
+        data
+    });
+});
 
 async function main() {
     try {

@@ -7,7 +7,7 @@ const { isAuthenticated } = require('../util/AuthenticationUtils');
 // read all
 router.get('/', async (request, response, next) => {
     const posts = await Post.find({})
-        .populate(['user']); // populates the user field with data from the db
+                            .populate(['user']); // populates the user field with data from the db
         response.status(200).json(posts);
 });
 
@@ -40,7 +40,7 @@ router.post('/', isAuthenticated, async (request, response, next) => {
 router.put('/:id', isAuthenticated, isCurrentUsersPost, async (request, response, next) => {
     const id = request.params.id;
     const updates = request.body;
-
+    
     const post = await Post.updateOne({ _id: id }, updates);
 
     if (post) {
@@ -62,7 +62,7 @@ router.delete('/:id', isAuthenticated, isCurrentUsersPost, async (request, respo
 });
 
 async function isCurrentUsersPost(request, response, next) {
-    const userId = request.user._id;
+    const userId = request.user._id; // currently logged in users id
     const postId = request.params.id;
     const post = await Post.findById(postId);
 

@@ -12,17 +12,18 @@ router.get('/register', (request, response) => {
 
 router.post('/login', passport.authenticate('local', {
     failureMessage: 'Invalid login credentials.',
-    failureRedirect: '/'
+    failureRedirect: '/login'
 }), (request, response) => {
     // upon successful login, passport will automatically create an express session for us to use
     response.status(200).send(request.user._id);
 });
 
-router.post('/register', async (request, response) => {
+router.post('/register', async (request, response, next) => {
     try {
         // register the user
         const user = await User.register(new User({
-            username: request.body.username
+            username: request.body.username,
+            contactDetails: request.body.contactDetails
         }), request.body.password); // register(userWithUsername, password)
 
         if (user) {
@@ -31,6 +32,7 @@ router.post('/register', async (request, response) => {
         }
     } catch (error) {
         console.error(error);
+        return next(error);
     }
     response.status(400).send('Something went wrong registering the user...');
 });
